@@ -67,6 +67,10 @@ typedef struct
 
   float integrationLimit;
 
+  float kp_component;
+  float ki_component;
+  float kd_component;
+
 
   lpf2pData dFilter;  //< filter for D term
   bool enableDFilter; //< filter for D term enable flag

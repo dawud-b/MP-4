@@ -82,7 +82,7 @@ void studentAttitudeControllerInit(const float updateDt)
 
   studentPidInit(&yawRate, 0, PID_YAW_RATE_KP, PID_YAW_RATE_KI, PID_YAW_RATE_KD, updateDt, 0, 0, false);
   studentPidInit(&pitchRate, 0, PID_PITCH_RATE_KP, PID_PITCH_RATE_KI, PID_PITCH_RATE_KD, updateDt, 0, 0, false);
-  studentPidInit(&rollRate, PID_ROLL_RATE_KP, PID_ROLL_RATE_KI, PID_ROLL_RATE_KD, updateDt, 0, 0, false);
+  studentPidInit(&rollRate, 0, PID_ROLL_RATE_KP, PID_ROLL_RATE_KI, PID_ROLL_RATE_KD, updateDt, 0, 0, false);
 
 
 
@@ -90,7 +90,7 @@ void studentAttitudeControllerInit(const float updateDt)
 
   studentPidSetIntegralLimit(&yawRate, PID_YAW_RATE_INTEGRATION_LIMIT);
   studentPidSetIntegralLimit(&pitchRate, PID_PITCH_RATE_INTEGRATION_LIMIT);
-  studentPidSetIntegralLimit(&rolLRate, PID_ROLL_RATE_INTEGRATION_LIMIT);
+  studentPidSetIntegralLimit(&rollRate, PID_ROLL_RATE_INTEGRATION_LIMIT);
 
   // 488 TODO initialize all attitude PID objects 
   studentPidInit(&yawAttitude, 0, PID_YAW_KP, PID_YAW_KI, PID_YAW_KD, updateDt, 0, 0, false);
@@ -140,10 +140,25 @@ void studentAttitudeControllerCorrectAttitudePID(
 
   // 488 TODO update all attitude PID's
 
+  studentPidSetDesired(&yawAttitude, eulerYawDesired);
+  studentPidSetDesired(&pitchAttitude, eulerPitchDesired);
+  studentPidSetDesired(&rollAttitude, eulerRollDesired);
+
+
+  *pitchRateDesired = studentPidUpdate(&pitchAttitude, eulerPitchActual, true);
+  *rollRateDesired = studentPidUpdate(&rollAttitude, eulerRollActual, true);
 
   // 488 TODO Update PID for yaw axis, handle error update here instead of in PID calculation to
   // keep error between -180 and 180
+  float yawError = yawAttitude.setpoint - eulerYawActual;
+  if (yawError > 180)
+    yawError = 180;
+  else if (yawError < -180)
+    yawError = -180;
   
+  studentPidSetError(&yawAttitude, yawError);
+  studentPidUpdate(&yawAttitude, eulerYawActual, false);
+
 }
 
 /**
@@ -171,9 +186,9 @@ void studentAttitudeControllerCorrectRatePID(
   studentPidSetDesired(&pitchRate, pitchRateDesired);
   studentPidSetDesired(&yawRate, yawRateDesired);
 
-  *yawCmd = (int16_t) studentPidUpdate(&yawRate, yawRateActual, false);
-  *pitchCmd = (int16_t) studentPidUpdate(&pitchRate, pitchRateActual, false);
-  *rollCmd = (int16_t) studentPidUpdate(&rolLRate, rollRateActual, false);
+  *yawCmd = (int16_t) studentPidUpdate(&yawRate, yawRateActual, true);
+  *pitchCmd = (int16_t) studentPidUpdate(&pitchRate, pitchRateActual, true);
+  *rollCmd = (int16_t) studentPidUpdate(&rollRate, rollRateActual, true);
 
 }
 
@@ -253,15 +268,15 @@ LOG_GROUP_START(s_pid_rate)
 /**
  * @brief Proportional output roll rate
  */
-LOG_ADD(LOG_FLOAT, roll_outP, NULL)
+LOG_ADD(LOG_FLOAT, roll_outP, &(rollRate.kp_component))
 /**
  * @brief Integral output roll rate
  */
-LOG_ADD(LOG_FLOAT, roll_outI, NULL)
+LOG_ADD(LOG_FLOAT, roll_outI, &(rollRate.ki_component))
 /**
  * @brief Derivative output roll rate
  */
-LOG_ADD(LOG_FLOAT, roll_outD, NULL)
+LOG_ADD(LOG_FLOAT, roll_outD, &(rollRate.kd_component))
 /**
  * @brief Proportional output pitch rate
  */
