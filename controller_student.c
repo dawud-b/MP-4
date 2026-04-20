@@ -56,8 +56,12 @@ bool controllerStudentTest(void)
  * @return float 
  */
 static float capAngle(float angle) {
-  //488 TODO 
-  return 0;
+  if (angle > 180)
+    return 180;
+  else if (angle < -180)
+    return -180;
+
+  return angle;
 }
 
 
@@ -81,6 +85,7 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
 
   // Main Controller Function
 
+
   // check if time to update the attutide controller
   if (RATE_DO_EXECUTE(ATTITUDE_RATE, tick)) {
 
@@ -95,6 +100,26 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
     }
 
     // 488 TODO if yaw is in rate mode, move the yaw angle setpoint accordingly
+    
+    if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeAbs && setpoint->mode.pitch == modeAbs && setpoint->mode.yaw == modeAbs) {
+      // attitude control
+      // use values given by setpoint.attitude
+
+
+    }
+
+    if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeVelocity && setpoint->mode.yaw == modeVelocity && setpoint->mode.pitch == modeVelocity) {
+      // attitude rate control
+      // use values given by setpoint.attitudeRate
+
+
+
+    }
+
+    if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.yaw == modeVelocity && setpoint->mode.roll == modeAbs && setpoint->mode.pitch == modeAbs) {
+      // mixed attitude control
+      // roll and pitch as rate while yaw as angle
+    }
 
     
     // 488 TODO set desired attitude, roll, pitch, and yaw angles
