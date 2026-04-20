@@ -55,10 +55,14 @@ typedef struct
   float dt;
 
   float error;
+  float last_error;
+  float ki_accumulation;
 
   float kp_active_threshold;
   float ki_active_threshold;
   float kd_active_threshold;
+
+  float output_limit;
 
 
   float integrationLimit;

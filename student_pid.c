@@ -31,7 +31,9 @@ void studentPidInit(PidObject* pid, const float desired, const float kp,
   studentPidReset(pid);
 
   studentPidSetIntegralLimit(pid, DEFAULT_PID_INTEGRATION_LIMIT);
-  
+  pid->last_error = 0;
+  pid->ki_accumulation = 0;
+  pid->output_limit = 0;
  
   //additional initialization for optional low pass filter
   pid->enableDFilter = enableDFilter;
@@ -55,7 +57,21 @@ float studentPidUpdate(PidObject* pid, const float measured, const bool updateEr
 
   // 488 TODO write base PID algorithm
 
+  float error;
+  if (updateError)
+    error = pid->setpoint - measured;
+  else
+    error = pid->error;
   
+  studentPidSetError(pid, error);
+  
+  float kp_component = pid->kp * error;
+  float kd_component = pid->kd * ((error - pid->last_error) / pid->dt);
+  pid->last_error = error;
+  pid->ki_accumulation += error * pid->dt;
+  float ki_component = pid->ki * pid->ki_accumulation;
+  
+
 
     // 488 TODO optionally enable derivative low pass filtering
     /*
@@ -72,11 +88,20 @@ float studentPidUpdate(PidObject* pid, const float measured, const bool updateEr
 
 
     // 488 TODO Constrain the integral (unless the integral limit is zero), use the constrain function
+
+    if (pid->integrationLimit != 0 && pid->ki_accumulation > pid->integrationLimit) {
+      pid->ki_accumulation = pid->integrationLimit;
+      ki_component = pid->ki * pid->ki_accumulation;
+    }
     
 
     // 488 TODO Constrain the total PID output (unless the output Limit is zero)
 
-    return 0.0;
+    float pid_output = kp_component + ki_component + kd_component;
+    if (pid->output_limit != 0 && pid_output > pid->output_limit)
+      pid_output = pid->output_limit;
+
+    return pid_output;
 }
 
 /**
