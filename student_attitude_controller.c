@@ -58,6 +58,13 @@ static inline int16_t saturateSignedInt16(float in)
 
 //488 TODO PidObject structs to hold PID data between executions for each axis
 
+static PidObject yawRate;
+static PidObject pitchRate;
+static PidObject rollRate;
+
+static PidObject yawAttitude;
+static PidObject pitchAttitude;
+static PidObject rollAttitude;
 
 static bool isInit;
 
@@ -72,14 +79,29 @@ void studentAttitudeControllerInit(const float updateDt)
     return;
 
   // 488 TODO initialize all rate PID objects
- 
+
+  studentPidInit(&yawRate, 0, PID_YAW_RATE_KP, PID_YAW_RATE_KI, PID_YAW_RATE_KD, updateDt, 0, 0, false);
+  studentPidInit(&pitchRate, 0, PID_PITCH_RATE_KP, PID_PITCH_RATE_KI, PID_PITCH_RATE_KD, updateDt, 0, 0, false);
+  studentPidInit(&rollRate, PID_ROLL_RATE_KP, PID_ROLL_RATE_KI, PID_ROLL_RATE_KD, updateDt, 0, 0, false);
+
+
+
   // 488 TODO set integral limits for all rate PID loops, 0 for no limit
 
+  studentPidSetIntegralLimit(&yawRate, PID_YAW_RATE_INTEGRATION_LIMIT);
+  studentPidSetIntegralLimit(&pitchRate, PID_PITCH_RATE_INTEGRATION_LIMIT);
+  studentPidSetIntegralLimit(&rolLRate, PID_ROLL_RATE_INTEGRATION_LIMIT);
 
   // 488 TODO initialize all attitude PID objects 
-  
+  studentPidInit(&yawAttitude, 0, PID_YAW_KP, PID_YAW_KI, PID_YAW_KD, updateDt, 0, 0, false);
+  studentPidInit(&pitchAttitude, 0, PID_PITCH_KP, PID_PITCH_KI, PID_PITCH_KD, updateDt, 0, 0, false);
+  studentPidInit(&rollAttitude, 0, PID_ROLL_KP, PID_ROLL_KI, PID_ROLL_KD, updateDt, 0, 0, false);
 
   // 488 TODO set integral limits for attitude PID loops, 0 for no limit
+  
+  studentPidSetIntegralLimit(&yawAttitude, PID_YAW_INTEGRATION_LIMIT);
+  studentPidSetIntegralLimit(&pitchAttitude, PID_PITCH_INTEGRATION_LIMIT);
+  studentPidSetIntegralLimit(&rollAttitude, PID_ROLL_INTEGRATION_LIMIT);
 
   isInit = true;
 }
@@ -145,7 +167,13 @@ void studentAttitudeControllerCorrectRatePID(
        )
 {
 
-  // 488 TODO update all attitude rate PID's
+  studentPidSetDesired(&rollRate, rollRateDesired);
+  studentPidSetDesired(&pitchRate, pitchRateDesired);
+  studentPidSetDesired(&yawRate, yawRateDesired);
+
+  *yawCmd = (int16_t) studentPidUpdate(&yawRate, yawRateActual, false);
+  *pitchCmd = (int16_t) studentPidUpdate(&pitchRate, pitchRateActual, false);
+  *rollCmd = (int16_t) studentPidUpdate(&rolLRate, rollRateActual, false);
 
 }
 
