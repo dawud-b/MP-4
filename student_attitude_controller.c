@@ -79,15 +79,11 @@ void studentAttitudeControllerInit(const float updateDt)
     return;
 
   // 488 TODO initialize all rate PID objects
-
   studentPidInit(&yawRate, 0, PID_YAW_RATE_KP, PID_YAW_RATE_KI, PID_YAW_RATE_KD, updateDt, 0, 0, false);
   studentPidInit(&pitchRate, 0, PID_PITCH_RATE_KP, PID_PITCH_RATE_KI, PID_PITCH_RATE_KD, updateDt, 0, 0, false);
   studentPidInit(&rollRate, 0, PID_ROLL_RATE_KP, PID_ROLL_RATE_KI, PID_ROLL_RATE_KD, updateDt, 0, 0, false);
 
-
-
   // 488 TODO set integral limits for all rate PID loops, 0 for no limit
-
   studentPidSetIntegralLimit(&yawRate, PID_YAW_RATE_INTEGRATION_LIMIT);
   studentPidSetIntegralLimit(&pitchRate, PID_PITCH_RATE_INTEGRATION_LIMIT);
   studentPidSetIntegralLimit(&rollRate, PID_ROLL_RATE_INTEGRATION_LIMIT);
@@ -98,7 +94,6 @@ void studentAttitudeControllerInit(const float updateDt)
   studentPidInit(&rollAttitude, 0, PID_ROLL_KP, PID_ROLL_KI, PID_ROLL_KD, updateDt, 0, 0, false);
 
   // 488 TODO set integral limits for attitude PID loops, 0 for no limit
-  
   studentPidSetIntegralLimit(&yawAttitude, PID_YAW_INTEGRATION_LIMIT);
   studentPidSetIntegralLimit(&pitchAttitude, PID_PITCH_INTEGRATION_LIMIT);
   studentPidSetIntegralLimit(&rollAttitude, PID_ROLL_INTEGRATION_LIMIT);

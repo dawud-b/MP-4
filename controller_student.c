@@ -104,15 +104,22 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
     if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeAbs && setpoint->mode.pitch == modeAbs && setpoint->mode.yaw == modeAbs) {
       // attitude control
       // use values given by setpoint.attitude
+      studentAttitudeControllerCorrectAttitudePID(state->attitude.roll, state->attitude.pitch, state->attitude.yaw, 
+        setpoint->attitude.roll, setpoint->attitude.pitch, setpoint->attitude.yaw,
+        &rateDesired.roll, &rateDesired.pitch, &rateDesired.yaw);
 
+      studentAttitudeControllerCorrectRatePID(state->velocity.x, state->velocity.y, state->velocity.z, 
+        rateDesired.roll, rateDesired.pitch, rateDesired.yaw,
+        &(control->roll), &(control->pitch), &(control->yaw));
 
     }
 
     if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeVelocity && setpoint->mode.yaw == modeVelocity && setpoint->mode.pitch == modeVelocity) {
       // attitude rate control
       // use values given by setpoint.attitudeRate
-
-
+      studentAttitudeControllerCorrectRatePID(state->velocity.x, state->velocity.y, state->velocity.z, 
+        setpoint->attitudeRate.roll, setpoint->attitudeRate.pitch, setpoint->attitudeRate.yaw,
+        &(control->roll), &(control->pitch), &(control->yaw));
 
     }
 
@@ -173,31 +180,31 @@ LOG_GROUP_START(ctrlStdnt)
 /**
  * @brief Thrust command output
  */
-LOG_ADD(LOG_FLOAT, cmd_thrust, NULL)
+LOG_ADD(LOG_FLOAT, cmd_thrust, cmd_thrust)
 /**
  * @brief Roll command output
  */
-LOG_ADD(LOG_FLOAT, cmd_roll, NULL)
+LOG_ADD(LOG_FLOAT, cmd_roll, cmd_roll)
 /**
  * @brief Pitch command output
  */
-LOG_ADD(LOG_FLOAT, cmd_pitch, NULL)
+LOG_ADD(LOG_FLOAT, cmd_pitch, cmd_pitch)
 /**
  * @brief yaw command output
  */
-LOG_ADD(LOG_FLOAT, cmd_yaw, NULL)
+LOG_ADD(LOG_FLOAT, cmd_yaw, cmd_yaw)
 /**
  * @brief Gyro roll measurement in degrees
  */
-LOG_ADD(LOG_FLOAT, r_roll, NULL)
+LOG_ADD(LOG_FLOAT, r_roll, r_roll)
 /**
  * @brief Gyro pitch measurement in degrees
  */
-LOG_ADD(LOG_FLOAT, r_pitch, NULL)
+LOG_ADD(LOG_FLOAT, r_pitch, r_pitch)
 /**
  * @brief Gyro yaw rate measurement in degrees
  */
-LOG_ADD(LOG_FLOAT, r_yaw, NULL)
+LOG_ADD(LOG_FLOAT, r_yaw, r_yaw)
 /**
  * @brief Acceleration in the z axis in G-force
  */
