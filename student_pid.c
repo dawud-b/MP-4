@@ -96,7 +96,10 @@ float studentPidUpdate(PidObject* pid, const float measured, const bool updateEr
     
 
     // 488 TODO Constrain the total PID output (unless the output Limit is zero)
-
+    pid->kp_component = kp_component;
+    pid->ki_component = ki_component;
+    pid->kd_component = kd_component;
+    
     float pid_output = kp_component + ki_component + kd_component;
     if (pid->output_limit != 0 && pid_output > pid->output_limit)
       pid_output = pid->output_limit;
