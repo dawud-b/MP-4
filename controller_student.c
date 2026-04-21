@@ -98,65 +98,62 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
       control->yaw = 0;
       return;
     }
+    
+    // 488 TODO set desired attitude, roll, pitch, and yaw angles
+    attitudeDesired.roll = setpoint->attitude.roll;
+    attitudeDesired.pitch = setpoint->attitude.pitch;
+    attitudeDesired.yaw = setpoint->attitude.yaw;
 
     // 488 TODO if yaw is in rate mode, move the yaw angle setpoint accordingly
-    
+
+
+    // 488 TODO set desired thrust
+    thrustDesired = setpoint->thrust;
+
+    // 488 TODO Run the attitude controller update with the actual attitude and desired attitude
+    // outputs the desired attitude rates
     if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeAbs && setpoint->mode.pitch == modeAbs && setpoint->mode.yaw == modeAbs) {
       // attitude control
       // use values given by setpoint.attitude
       studentAttitudeControllerCorrectAttitudePID(state->attitude.roll, state->attitude.pitch, state->attitude.yaw, 
-        setpoint->attitude.roll, setpoint->attitude.pitch, setpoint->attitude.yaw,
+        setpoint->attitude.roll, setpoint->attitude.pitch, -setpoint->attitude.yaw,
         &rateDesired.roll, &rateDesired.pitch, &rateDesired.yaw);
 
-      studentAttitudeControllerCorrectRatePID(state->velocity.x, state->velocity.y, state->velocity.z, 
-        rateDesired.roll, rateDesired.pitch, rateDesired.yaw,
-        &(control->roll), &(control->pitch), &(control->yaw));
-
     }
-
-    if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeVelocity && setpoint->mode.yaw == modeVelocity && setpoint->mode.pitch == modeVelocity) {
-      // attitude rate control
-      // use values given by setpoint.attitudeRate
-      studentAttitudeControllerCorrectRatePID(state->velocity.x, state->velocity.y, state->velocity.z, 
-        setpoint->attitudeRate.roll, setpoint->attitudeRate.pitch, setpoint->attitudeRate.yaw,
-        &(control->roll), &(control->pitch), &(control->yaw));
-
-    }
-
-    if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.yaw == modeVelocity && setpoint->mode.roll == modeAbs && setpoint->mode.pitch == modeAbs) {
-      // mixed attitude control
-      // roll and pitch as rate while yaw as angle
-    }
-
-    
-    // 488 TODO set desired attitude, roll, pitch, and yaw angles
-
-
-    // 488 TODO set desired thrust
-
-
-
-    // 488 TODO Run the attitude controller update with the actual attitude and desired attitude
-    // outputs the desired attitude rates
-
 
     // 488 TODO if velocity mode, overwrite rateDesired output
     // from the attitude controller with the setpoint value
     // Also reset the PID to avoid error buildup, which can lead to unstable
     // behavior if level mode is engaged later
-
-    
+    if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeVelocity && setpoint->mode.yaw == modeVelocity && setpoint->mode.pitch == modeVelocity)
+    {
+      rateDesired.roll = setpoint->attitudeRate.roll;
+      rateDesired.pitch = setpoint->attitudeRate.pitch;
+      rateDesired.yaw = -setpoint->attitudeRate.yaw;
+      studentAttitudeControllerResetAllPID();
+    }
 
     // 488 TODO update the attitude rate PID, given the current angular rate 
-    // read by the gyro and the desired rate 
-
+    // read by the gyro and the desired rate
+    
+    // attitude rate control
+    studentAttitudeControllerCorrectRatePID(state->velocity.y, state->velocity.x, state->velocity.z, 
+      rateDesired.roll, rateDesired.pitch, rateDesired.yaw,
+      &(control->roll), &(control->pitch), &(control->yaw));
 
   }
 
-  //488 TODO set control->thrust 
+  //488 TODO set control->thrust
+  control->thrust = thrustDesired;
 
   //488 TODO if no thrust active, set all outputs to 0 and reset PID variables
-
+  if (control->thrust == 0) {
+    control->thrust = 0;
+    control->roll   = 0;
+    control->pitch  = 0;
+    control->yaw    = 0;
+    studentAttitudeControllerResetAllPID();
+  }
 
   //copy values for logging
   cmd_thrust = control->thrust;
@@ -180,35 +177,35 @@ LOG_GROUP_START(ctrlStdnt)
 /**
  * @brief Thrust command output
  */
-LOG_ADD(LOG_FLOAT, cmd_thrust, cmd_thrust)
+LOG_ADD(LOG_FLOAT, cmd_thrust, &cmd_thrust)
 /**
  * @brief Roll command output
  */
-LOG_ADD(LOG_FLOAT, cmd_roll, cmd_roll)
+LOG_ADD(LOG_FLOAT, cmd_roll, &cmd_roll)
 /**
  * @brief Pitch command output
  */
-LOG_ADD(LOG_FLOAT, cmd_pitch, cmd_pitch)
+LOG_ADD(LOG_FLOAT, cmd_pitch, &cmd_pitch)
 /**
  * @brief yaw command output
  */
-LOG_ADD(LOG_FLOAT, cmd_yaw, cmd_yaw)
+LOG_ADD(LOG_FLOAT, cmd_yaw, &cmd_yaw)
 /**
  * @brief Gyro roll measurement in degrees
  */
-LOG_ADD(LOG_FLOAT, r_roll, r_roll)
+LOG_ADD(LOG_FLOAT, r_roll, &r_roll)
 /**
  * @brief Gyro pitch measurement in degrees
  */
-LOG_ADD(LOG_FLOAT, r_pitch, r_pitch)
+LOG_ADD(LOG_FLOAT, r_pitch, &r_pitch)
 /**
  * @brief Gyro yaw rate measurement in degrees
  */
-LOG_ADD(LOG_FLOAT, r_yaw, r_yaw)
+LOG_ADD(LOG_FLOAT, r_yaw, &r_yaw)
 /**
  * @brief Acceleration in the z axis in G-force
  */
-LOG_ADD(LOG_FLOAT, accelz, NULL)
+LOG_ADD(LOG_FLOAT, accelz, &accelz)
 /**
  * @brief Desired roll setpoint
  */

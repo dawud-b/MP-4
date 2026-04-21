@@ -152,7 +152,7 @@ void studentAttitudeControllerCorrectAttitudePID(
     yawError = -180;
   
   studentPidSetError(&yawAttitude, yawError);
-  studentPidUpdate(&yawAttitude, eulerYawActual, false);
+  *yawRateDesired = studentPidUpdate(&yawAttitude, eulerYawActual, false);
 
 }
 
@@ -188,25 +188,29 @@ void studentAttitudeControllerCorrectRatePID(
 }
 
 // 488 TODO write helper functions to reset pid values
-
-void studentAttitudeControllerResetRollAttitudePID(void)
+void studentAttitudeControllerResetRollAttitudePID(void) 
 {
-    
+  studentPidReset(&rollAttitude);
 }
 
-void studentAttitudeControllerResetYawAttitudePID(void)
+void studentAttitudeControllerResetPitchAttitudePID(void) 
 {
-
+  studentPidReset(&pitchAttitude);
 }
 
-void studentAttitudeControllerResetPitchAttitudePID(void)
+void studentAttitudeControllerResetYawAttitudePID(void) 
 {
-
+  studentPidReset(&yawAttitude);
 }
 
-void studentAttitudeControllerResetAllPID(void)
+void studentAttitudeControllerResetAllPID(void) 
 {
-
+  studentPidReset(&rollAttitude);
+  studentPidReset(&pitchAttitude);
+  studentPidReset(&yawAttitude);
+  studentPidReset(&rollRate);
+  studentPidReset(&pitchRate);
+  studentPidReset(&yawRate);
 }
 
 

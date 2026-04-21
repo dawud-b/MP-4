@@ -99,7 +99,7 @@ float studentPidUpdate(PidObject* pid, const float measured, const bool updateEr
     pid->kp_component = kp_component;
     pid->ki_component = ki_component;
     pid->kd_component = kd_component;
-    
+
     float pid_output = kp_component + ki_component + kd_component;
     if (pid->output_limit != 0 && pid_output > pid->output_limit)
       pid_output = pid->output_limit;
@@ -126,6 +126,9 @@ void studentPidReset(PidObject* pid)
 {
   // 488 TODO
   pid->error = 0;
+  pid->last_error = 0;     
+  pid->ki_accumulation = 0;
+  pid->setpoint = 0;
 }
 
 /**
@@ -169,7 +172,7 @@ float studentPidGetDesired(PidObject* pid)
 bool studentPidIsActive(PidObject* pid)
 {
   //488 TODO is active if the constants kp ki kd are above some small threshold
-  return pid->kp > pid->kd_active_threshold && pid->ki > pid->ki_active_threshold && pid->kd > pid->kd_active_threshold;
+  return pid->kp > pid->kp_active_threshold && pid->ki > pid->ki_active_threshold && pid->kd > pid->kd_active_threshold;
 }
 
 /**
