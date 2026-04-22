@@ -134,7 +134,6 @@ void studentAttitudeControllerCorrectAttitudePID(
 {
 
   // 488 TODO update all attitude PID's
-
   studentPidSetDesired(&yawAttitude, eulerYawDesired);
   studentPidSetDesired(&pitchAttitude, eulerPitchDesired);
   studentPidSetDesired(&rollAttitude, eulerRollDesired);

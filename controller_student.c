@@ -85,7 +85,6 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
 
   // Main Controller Function
 
-
   // check if time to update the attutide controller
   if (RATE_DO_EXECUTE(ATTITUDE_RATE, tick)) {
 
@@ -112,14 +111,11 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
 
     // 488 TODO Run the attitude controller update with the actual attitude and desired attitude
     // outputs the desired attitude rates
-    if (setpoint->mode.x == modeDisable && setpoint->mode.y == modeDisable && setpoint->mode.z == modeDisable && setpoint->mode.roll == modeAbs && setpoint->mode.pitch == modeAbs && setpoint->mode.yaw == modeAbs) {
       // attitude control
       // use values given by setpoint.attitude
-      studentAttitudeControllerCorrectAttitudePID(state->attitude.roll, state->attitude.pitch, state->attitude.yaw, 
-        setpoint->attitude.roll, setpoint->attitude.pitch, -setpoint->attitude.yaw,
-        &rateDesired.roll, &rateDesired.pitch, &rateDesired.yaw);
-
-    }
+    studentAttitudeControllerCorrectAttitudePID(state->attitude.roll, state->attitude.pitch, state->attitude.yaw, 
+      attitudeDesired.roll, attitudeDesired.pitch, attitudeDesired.yaw,
+      &rateDesired.roll, &rateDesired.pitch, &rateDesired.yaw);
 
     // 488 TODO if velocity mode, overwrite rateDesired output
     // from the attitude controller with the setpoint value
@@ -129,7 +125,7 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
     {
       rateDesired.roll = setpoint->attitudeRate.roll;
       rateDesired.pitch = setpoint->attitudeRate.pitch;
-      rateDesired.yaw = -setpoint->attitudeRate.yaw;
+      rateDesired.yaw = setpoint->attitudeRate.yaw;
       studentAttitudeControllerResetAllPID();
     }
 
@@ -137,7 +133,7 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
     // read by the gyro and the desired rate
     
     // attitude rate control
-    studentAttitudeControllerCorrectRatePID(state->velocity.y, state->velocity.x, state->velocity.z, 
+    studentAttitudeControllerCorrectRatePID(sensors->gyro.y, sensors->gyro.x, sensors->gyro.z, 
       rateDesired.roll, rateDesired.pitch, rateDesired.yaw,
       &(control->roll), &(control->pitch), &(control->yaw));
 

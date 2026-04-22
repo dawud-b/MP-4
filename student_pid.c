@@ -34,6 +34,10 @@ void studentPidInit(PidObject* pid, const float desired, const float kp,
   pid->last_error = 0;
   pid->ki_accumulation = 0;
   pid->output_limit = 0;
+
+  pid->kp_active_threshold = 0.0f;
+  pid->ki_active_threshold = 0.0f;
+  pid->kd_active_threshold = 0.0f;
  
   //additional initialization for optional low pass filter
   pid->enableDFilter = enableDFilter;
