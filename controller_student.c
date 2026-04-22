@@ -133,7 +133,7 @@ void controllerStudent(control_t *control, setpoint_t *setpoint, const sensorDat
     // read by the gyro and the desired rate
     
     // attitude rate control
-    studentAttitudeControllerCorrectRatePID(sensors->gyro.y, sensors->gyro.x, sensors->gyro.z, 
+    studentAttitudeControllerCorrectRatePID(sensors->gyro.x, sensors->gyro.y, sensors->gyro.z, 
       rateDesired.roll, rateDesired.pitch, rateDesired.yaw,
       &(control->roll), &(control->pitch), &(control->yaw));
 
